@@ -1,0 +1,96 @@
+#!/usr/bin/env node
+
+const net  = require('net')
+const path = require('path')
+const fs   = require('fs')
+const save = require('../../util/save')
+const tick = require('../../util/tick')
+
+const vizDir = path.dirname(require.resolve('ah-viz'))
+const vizLibDir = path.join(vizDir, '..', 'lib')
+const filesToRead = fs
+  .readdirSync(vizLibDir)
+  .map(x => path.join(vizLibDir, x))
+
+const PORT = process.argv[2] || 3333
+
+const BUFFERLENGTH = 18
+const STRINGLENGTH = 10
+const opts = {
+    start            : process.hrtime()
+  , captureArguments : true
+  , captureSource    : false
+  , bufferLength     : BUFFERLENGTH
+  , stringLength     : STRINGLENGTH
+}
+const NetworkActivityCollector = require('ah-net')
+const FileSystemActivityCollector = require('ah-fs')
+
+const processNetwork = require('ah-net.processor').process
+const processFileSystem = require('ah-fs.processor').process
+
+const networkActivityCollector = new NetworkActivityCollector(opts)
+const fileSystemActivityCollector = new FileSystemActivityCollector(opts)
+
+function enable() {
+  networkActivityCollector.enable()
+  fileSystemActivityCollector.enable()
+}
+
+enable()
+const server = net.createServer()
+server
+  .on('connection', onconnection)
+  .on('error', onerror)
+  .on('listening', onlistening)
+  .listen(PORT)
+
+let connections = 0
+let fileId = 0
+function onconnection(socket) {
+  fs.readFile(filesToRead[fileId++], onreadFile)
+  function onreadFile(err, src) {
+    if (err) console.error(err)
+    // not really doing anything with source here, but this is
+    // just a demo ;)
+    socket.end()
+    if (++connections === 5) server.close(onclosed)
+  }
+}
+
+function onerror(err) {
+  console.error(err)
+}
+
+// eslint-disable-next-line no-unused-vars
+function inspect(obj, depth) {
+  console.error(require('util').inspect(obj, false, depth || 5, true))
+}
+
+function onlistening() {
+}
+
+function onclosed() {
+  tick(2, () => {
+    networkActivityCollector
+      .disable()
+      .cleanAllResources()
+      .processStacks()
+    fileSystemActivityCollector
+      .disable()
+      .cleanAllResources()
+      .processStacks()
+
+    save('tcp-fs.fs.activities', Array.from(fileSystemActivityCollector.fileSystemActivities), { json: true })
+    save('tcp-fs.net.activities', Array.from(networkActivityCollector.networkActivities), { json: true })
+    save('tcp-fs.all.activities', Array.from(fileSystemActivityCollector.activities), { json: true })
+
+    const filesystemOperations =
+      processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities })
+    const networkOperations =
+      processNetwork({ activities: networkActivityCollector.networkActivities })
+    const operations = filesystemOperations.concat(networkOperations)
+
+    save('tcp-fs.operations', operations, { json: true })
+  })
+}

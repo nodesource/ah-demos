@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+const net = require('net')
+const PORT = process.argv[2] || 3333
+
+net.connect(PORT, onconnected)
+function onconnected() {}

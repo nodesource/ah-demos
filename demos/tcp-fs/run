@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+PORT=4444
+
+./server $PORT &
+
+sleep 0.5
+./client $PORT
+sleep 0.01
+./client $PORT
+sleep 0.01
+./client $PORT
+sleep 0.01
+./client $PORT
+sleep 0.01
+./client $PORT
