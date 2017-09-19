@@ -3,14 +3,15 @@
 PORT=4444
 
 ./server $PORT &
+server_pid=$!
 
-sleep 0.5
-./client $PORT
-sleep 0.01
-./client $PORT
-sleep 0.01
-./client $PORT
-sleep 0.01
-./client $PORT
-sleep 0.01
-./client $PORT
+# Wait for server to come up
+sleep 0.2 
+for i in `seq 1 4`
+do
+  ./client $PORT &
+  sleep 0.01
+done
+
+sleep 3
+kill -9 $server_pid 2>/dev/null

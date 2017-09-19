@@ -37,7 +37,6 @@ function enable() {
   fileSystemActivityCollector.enable()
 }
 
-enable()
 const server = net.createServer()
 server
   .on('connection', onconnection)
@@ -54,7 +53,7 @@ function onconnection(socket) {
     // not really doing anything with source here, but this is
     // just a demo ;)
     socket.end()
-    if (++connections === 5) server.close(onclosed)
+    if (++connections === 4) server.close(onclosed)
   }
 }
 
@@ -68,6 +67,7 @@ function inspect(obj, depth) {
 }
 
 function onlistening() {
+  enable()
 }
 
 function onclosed() {
