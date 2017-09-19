@@ -11,7 +11,7 @@ const filesToRead = fs
   .map(x => path.join(vizLibDir, x))
   .filter(x => fs.statSync(x).isFile())
 
-const BUFFERLENGTH = 18
+const BUFFERLENGTH = 50
 const STRINGLENGTH = 10
 const opts = {
     start            : process.hrtime()
@@ -29,7 +29,7 @@ const processFileSystem = require('ah-fs.processor').process
 
 var filesRemaining = filesToRead.length
 filesToRead.forEach((x, idx) => {
-  setTimeout(() => fs.readFile(x, onreadFile), idx * 20)
+  setTimeout(() => fs.readFile(x, onreadFile), idx * 10)
 })
 
 function onreadFile(err, src) {
@@ -45,7 +45,7 @@ function ondone() {
 
   save('fs.fs.activities', Array.from(fileSystemActivityCollector.fileSystemActivities), { json: true })
   const filesystemOperations =
-    processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities })
+    processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities, includeActivities: true })
 
   save('operations', filesystemOperations, { json: true })
 }

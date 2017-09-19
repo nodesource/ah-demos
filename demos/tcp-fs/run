@@ -7,10 +7,10 @@ server_pid=$!
 
 # Wait for server to come up
 sleep 0.2 
-for i in `seq 1 4`
+for i in `seq 1 5`
 do
   ./client $PORT &
-  sleep 0.01
+  sleep 0.02
 done
 
 sleep 1

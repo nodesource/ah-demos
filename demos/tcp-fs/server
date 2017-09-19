@@ -11,6 +11,7 @@ const vizLibDir = path.join(vizDir, '..', 'lib')
 const filesToRead = fs
   .readdirSync(vizLibDir)
   .map(x => path.join(vizLibDir, x))
+  .filter(x => fs.statSync(x).isFile())
 
 const PORT = process.argv[2] || 3333
 
@@ -46,14 +47,16 @@ server
 
 let connections = 0
 let fileId = 0
+const len = filesToRead.length
 function onconnection(socket) {
+  if (fileId === len) fileId = 0
   fs.readFile(filesToRead[fileId++], onreadFile)
   function onreadFile(err, src) {
     if (err) console.error(err)
     // not really doing anything with source here, but this is
     // just a demo ;)
     socket.end()
-    if (++connections === 4) server.close(onclosed)
+    if (++connections === 5) server.close(onclosed)
   }
 }
 
