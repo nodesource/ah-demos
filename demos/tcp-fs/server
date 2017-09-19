@@ -91,6 +91,6 @@ function onclosed() {
       processNetwork({ activities: networkActivityCollector.networkActivities })
     const operations = filesystemOperations.concat(networkOperations)
 
-    save('tcp-fs.operations', operations, { json: true })
+    save('operations', operations, { json: true })
   })
 }

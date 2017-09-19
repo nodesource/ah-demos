@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+
+const path = require('path')
+const fs   = require('fs')
+const save = require('../../util/save')
+
+const vizDir = path.dirname(require.resolve('ah-viz'))
+const vizLibDir = path.join(vizDir, '..', 'lib')
+const filesToRead = fs
+  .readdirSync(vizLibDir)
+  .map(x => path.join(vizLibDir, x))
+  .filter(x => fs.statSync(x).isFile())
+
+const BUFFERLENGTH = 18
+const STRINGLENGTH = 10
+const opts = {
+    start            : process.hrtime()
+  , captureArguments : true
+  , captureSource    : false
+  , bufferLength     : BUFFERLENGTH
+  , stringLength     : STRINGLENGTH
+}
+
+const FileSystemActivityCollector = require('ah-fs')
+const fileSystemActivityCollector = new FileSystemActivityCollector(opts)
+fileSystemActivityCollector.enable()
+
+const processFileSystem = require('ah-fs.processor').process
+
+var filesRemaining = filesToRead.length
+filesToRead.forEach((x, idx) => {
+  setTimeout(() => fs.readFile(x, onreadFile), idx * 20)
+})
+
+function onreadFile(err, src) {
+  if (err) console.error(err)
+  if (--filesRemaining === 0) ondone()
+}
+
+function ondone() {
+  fileSystemActivityCollector
+    .disable()
+    .cleanAllResources()
+    .processStacks()
+
+  save('fs.fs.activities', Array.from(fileSystemActivityCollector.fileSystemActivities), { json: true })
+  const filesystemOperations =
+    processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities })
+
+  save('operations', filesystemOperations, { json: true })
+}
