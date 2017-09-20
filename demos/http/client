@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+
+const http = require('http')
+const save = require('../../util/save')
+const tick = require('../../util/tick')
+const PORT = process.argv[2] || 3333
+const includeActivities = !!process.env.INCLUDE_ACTIVITIES
+const saveOperations = !!process.env.SAVE_OPERATIONS
+
+function noop() {}
+
+const BUFFERLENGTH = 18
+const STRINGLENGTH = 200
+const NetworkActivityCollector = require('ah-net')
+const collector = new NetworkActivityCollector({
+    start            : process.hrtime()
+  , captureArguments : true
+  , captureSource    : false
+  , bufferLength     : BUFFERLENGTH
+  , stringLength     : STRINGLENGTH
+}).enable()
+
+const processNetwork = require('ah-net.processor').process
+
+const shutdownRoute = `http://localhost:${PORT}/shutdown`
+const helloRoute = `http://localhost:${PORT}/hello`
+
+http.get(helloRoute, onconnectedHello).on('aborted', onaborted)
+
+function onconnectedHello(res) {
+  function onendHello() {
+    http.get(shutdownRoute, onconnectedShutdown).on('aborted', onaborted)
+    res.destroy()
+  }
+  res.on('data', noop).on('end', onendHello)
+}
+
+function onconnectedShutdown(res) {
+  res.on('data', noop).on('end', onend)
+}
+
+function onaborted() {}
+
+function onend() {
+  tick(2, () => {
+    collector
+      .disable()
+      .cleanAllResources()
+      .processStacks()
+
+      save('http-one-connection.client', Array.from(collector.networkActivities), { json: true })
+      save('http-one-connection.client.all', Array.from(collector.activities), { json: true })
+
+      if (saveOperations) {
+        const operations = processNetwork({ activities: collector.networkActivities, includeActivities })
+        save('operations', operations, { json: true })
+      }
+  })
+}
