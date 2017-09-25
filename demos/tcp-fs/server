@@ -56,7 +56,7 @@ function onconnection(socket) {
     // not really doing anything with source here, but this is
     // just a demo ;)
     socket.end()
-    if (++connections === 5) server.close(onclosed)
+    if (++connections === 8) server.close(onclosed)
   }
 }
 
@@ -89,7 +89,7 @@ function onclosed() {
     save('tcp-fs.all.activities', Array.from(fileSystemActivityCollector.activities), { json: true })
 
     const filesystemOperations =
-      processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities })
+      processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities , includeActivities: true })
     const networkOperations =
       processNetwork({ activities: networkActivityCollector.networkActivities })
     const operations = filesystemOperations.concat(networkOperations)
