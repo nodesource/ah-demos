@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+PORT=4444
+
+nsolid ./server $PORT &
+server_pid=$!
+
+# Wait for server to come up
+sleep 0.2 
+for i in `seq 1 8`
+do
+  nsolid ./client $PORT &
+  sleep 0.02
+done
+
+sleep 1
+# server should shut itself down, but making double sure
+kill -9 $server_pid 2>/dev/null
