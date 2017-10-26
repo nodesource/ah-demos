@@ -19,7 +19,7 @@ const collector = new NetworkActivityCollector({
   , stringLength     : STRINGLENGTH
 }).enable()
 
-const processNetwork = require('ah-net.processor').process
+const { processNetwork } = require('ah-net.processor')
 
 const server = http.createServer()
 server

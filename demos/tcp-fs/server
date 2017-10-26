@@ -27,8 +27,8 @@ const opts = {
 const NetworkActivityCollector = require('ah-net')
 const FileSystemActivityCollector = require('ah-fs')
 
-const processNetwork = require('ah-net.processor').process
-const processFileSystem = require('ah-fs.processor').process
+const { processNetwork } = require('ah-net.processor')
+const { processFileSystem } = require('ah-fs.processor')
 
 const networkActivityCollector = new NetworkActivityCollector(opts)
 const fileSystemActivityCollector = new FileSystemActivityCollector(opts)
@@ -89,7 +89,7 @@ function onclosed() {
     save('tcp-fs.all.activities', Array.from(fileSystemActivityCollector.activities), { json: true })
 
     const filesystemOperations =
-      processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities , includeActivities: true })
+      processFileSystem({ activities: fileSystemActivityCollector.fileSystemActivities, includeActivities: true })
     const networkOperations =
       processNetwork({ activities: networkActivityCollector.networkActivities })
     const operations = filesystemOperations.concat(networkOperations)

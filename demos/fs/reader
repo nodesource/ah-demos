@@ -25,7 +25,7 @@ const FileSystemActivityCollector = require('ah-fs')
 const fileSystemActivityCollector = new FileSystemActivityCollector(opts)
 fileSystemActivityCollector.enable()
 
-const processFileSystem = require('ah-fs.processor').process
+const { processFileSystem } = require('ah-fs.processor')
 
 var filesRemaining = filesToRead.length
 filesToRead.forEach((x, idx) => {

@@ -6,7 +6,7 @@ PORT=4444
 server_pid=$!
 
 # Wait for server to come up
-sleep 0.2 
+sleep 0.4 
 for i in `seq 1 8`
 do
   ./client $PORT &

@@ -20,7 +20,7 @@ const collector = new NetworkActivityCollector({
   , stringLength     : STRINGLENGTH
 }).enable()
 
-const processNetwork = require('ah-net.processor').process
+const { processNetwork } = require('ah-net.processor')
 
 const shutdownRoute = `http://localhost:${PORT}/shutdown`
 const helloRoute = `http://localhost:${PORT}/hello`
