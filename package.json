@@ -12,10 +12,10 @@
   },
   "homepage": "https://github.com/thlorenz/ah-demos",
   "dependencies": {
-    "ah-fs": "0.0.2",
-    "ah-fs.processor": "nodesource/ah-fs.processor",
-    "ah-net": "nodesource/ah-net",
-    "ah-net.processor": "nodesource/ah-net.processor",
+    "ah-fs": "~0.1.1",
+    "ah-fs.processor": "~0.2.0",
+    "ah-net": "~0.2.0",
+    "ah-net.processor": "~0.1.0",
     "ah-viz": "nodesource/ah-viz",
     "json-stringify-safe": "~5.0.1"
   },
